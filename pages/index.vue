@@ -1,50 +1,54 @@
 <template>
-  <div class="row" @open-modal="openModal=$event">
+  <div class="row">
     <div class="col-md-4 to-do-list">
-      <TodoList :listTodo="listTodo" />
-      <!-- <ModalAddOrUpdate :openModal="openModal" /> -->
-      <!-- <TodoDetail /> -->
+      <TodoList />
+      <ModalAddOrUpdate :openModal="openModal" :update="update" />
+    </div>
+    <div class="col-md-8">
+      <TodoDetail />
     </div>
   </div>
 </template>
 
 <script>
-// import moment from "moment";
 import { mapState, mapActions } from "vuex";
 import TodoList from "../components/TodoList.vue";
-// import TodoDetail from "../components/ToDoDetail";
+import TodoDetail from "../components/TodoDetail";
 import ModalAddOrUpdate from "../components/ModalAddOrUpdate";
 
 export default {
   components: {
-    TodoList
-    // ModalAddOrUpdate
-    // TodoDetail
+    TodoList,
+    ModalAddOrUpdate,
+    TodoDetail
   },
   data: () => {
     return {
-      id: "",
-      openModal: true
+      openModal: false,
+      update: false
     };
   },
 
-  computed: {
-    ...mapState("todoModule", ["listTodo", "todo"]),
+  async asyncData({ store }) {
+    await store.dispatch("todoModule/getAllTodo");
+  },
+
+  methods: {
     ...mapActions("todoModule", [
       "getAllTodo",
       "getTodoById",
       "addTodo",
       "updateTodo",
       "deleteTodo"
-    ])
-  },
-  methods: {
+    ]),
+
     setOpenModal(value) {
       this.openModal = value;
+    },
+
+    setUpdate(value) {
+      this.update = value;
     }
-  },
-  asyncData({ store }) {
-    store.dispatch("todoModule/getAllTodo");
   }
 };
 </script>

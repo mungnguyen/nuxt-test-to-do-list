@@ -3,7 +3,9 @@
 // init state
 export const state = () => ({
   listTodo: [],
-  todo: {}
+  todo: {},
+  updateSuccess: false,
+  deleteSuccess: false
 })
 
 // getter
@@ -15,45 +17,61 @@ export const mutations = {
   },
 
   SET_TODO(state, todo) {
-    // setOpenModal(value) {
-    //   this.openModal = value;
-    // }
     state.todo = todo
   },
 
   ADD_TODO(state, todo) {
-    state.list.push(todo)
+    state.listTodo.push(todo)
+  },
+
+  SET_UPDATE_SUCCESS(state, updateSuccess) {
+    state.updateSuccess = updateSuccess
+  },
+
+  SET_DELETE_SUCCESS(state, deleteSuccess) {
+    state.deleteSuccess = deleteSuccess
   }
 }
 
 export const actions = {
-  getAllTodo({ commit }) {
-    this.$axios.get('/api/todo').then(res => {
-      console.log(res.data)
-      commit('LIST_TODO', res.data)
-    })
+  async getAllTodo({ commit }) {
+    const { data } = await this.$axios.get('/api/todo')
+    commit('LIST_TODO', data)
   },
 
-  getTodoById({ commit }, id) {
-    this.$axios.get('/api/todo/' + id).then(res => {
-      commit('SET_TODO', res.data)
-    })
+  async getTodoById({ commit }, id) {
+    const { data } = await this.$axios.get('/api/todo/' + id)
+    if (data) {
+      commit('SET_TODO', data[0])
+    }
   },
 
-  addTodo({ dispatch }, todo) {
-    this.$axios.post('/api/todo', todo).then(res => {
-      dispatch('GET_TODO')
-    })
+  async addTodo({ commit }, todo) {
+    const { data } = await this.$axios.post('/api/todo', todo)
+    commit('ADD_TODO', data)
   },
 
-  updateTodo({ dispatch }, todo) {
-    this.$axios.put('/api/todo/' + todo.id, todo).then(() => {
-      dispatch('getAllTodo')
-      dispatch('getTodoById', todo.id)
-    })
+  async updateTodo({ dispatch, commit }, todo) {
+    const { data } = await this.$axios.put('/api/todo/' + todo.id, todo)
+
+    if (data) {
+      commit('SET_UPDATE_SUCCESS', true)
+    } else {
+      commit('SET_UPDATE_SUCCESS', false)
+    }
+    dispatch('getAllTodo')
+    dispatch('getTodoById', todo.id)
   },
 
-  deleteTodo({ dispatch }, id) {
-    this.$axios.delete('/api/todo/' + id).then(dispatch('getAllTodo'))
+  async deleteTodo({ dispatch, commit }, id) {
+    const { data } = await this.$axios.delete('/api/todo/' + id)
+
+    if (data) {
+      commit('SET_DELETE_SUCCESS', true)
+    } else {
+      commit('SET_DELETE_SUCCESS', false)
+    }
+
+    dispatch('getAllTodo')
   }
 }

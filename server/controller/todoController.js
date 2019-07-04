@@ -6,45 +6,44 @@ class ToDoReq {
     this.body = req.body.body
     this.startDate = req.body.startDate
     this.endDate = req.body.endDate
+    this.doneDate = req.body.doneDate ? req.body.doneDate : null
+    this.tick = req.body.tick ? req.body.tick : false
   }
 }
 
-exports.getAllTodo = (req, res) => {
-  db.ToDo.findAll().then(result => {
-    res.json(result)
-  })
+exports.getAllTodo = async (req, res) => {
+  const result = await db.ToDo.findAll()
+  res.json(result)
 }
 
-exports.getTodoById = (req, res) => {
-  db.ToDo.findAll({
+exports.getTodoById = async (req, res) => {
+  const result = await db.ToDo.findAll({
     where: {
       id: req.params.id
     }
-  }).then(result => {
-    res.json(result)
   })
+  res.json(result)
 }
 
-exports.addTodo = (req, res) => {
-  db.ToDo.create(new ToDoReq(req)).then(result => res.json(result))
+exports.addTodo = async (req, res) => {
+  const result = await db.ToDo.create(new ToDoReq(req))
+  res.json(result)
 }
 
-exports.updateTodo = (req, res) => {
-  db.ToDo.update(new ToDoReq(req), {
+exports.updateTodo = async (req, res) => {
+  const result = await db.ToDo.update(new ToDoReq(req), {
     where: {
       id: req.params.id
     }
-  }).then(result => {
-    res.json(result)
   })
+  res.json(result)
 }
 
-exports.deleteTodo = (req, res) => {
-  db.ToDo.destroy({
+exports.deleteTodo = async (req, res) => {
+  const result = await db.ToDo.destroy({
     where: {
       id: req.params.id
     }
-  }).then(result => {
-    res.json(result)
   })
+  res.json(result)
 }
